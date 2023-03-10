@@ -22,7 +22,7 @@
 
 
 import flask
-from flask import Flask, request
+from flask import Flask, request, send_from_directory, redirect, url_for, jsonify
 import json
 app = Flask(__name__)
 app.debug = True
@@ -55,7 +55,7 @@ class World:
         return self.space
 
 # you can test your webservice from the commandline
-# curl -v   -H "Content-Type: application/json" -X PUT http://127.0.0.1:5000/entity/X -d '{"x":1,"y":1}' 
+# curl -v   -H "Content-Type: application/json" -X PUT http://127.0.0.1:5000/entity/X -d '{"x":1,"y":1}'
 
 myWorld = World()          
 
@@ -74,27 +74,43 @@ def flask_post_json():
 @app.route("/")
 def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    # return send_from_directory("static", "index.html")
+    # return redirect(url_for('static', filename='index.html'))
+    return redirect("static/index.html")
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    return None
+    response = flask_post_json()
+
+    print("Entity: ", entity)
+    print("Response: ", response)
+    for key, value in response.items():
+        print(key, " ", value)
+        myWorld.update(entity, key, value)
+    if request.method == "POST":
+        return jsonify("Entity POST Successful")
+    else:
+        return jsonify(response)
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    return None
+    return jsonify(myWorld.world())
+    # return None
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    return jsonify(myWorld.get(entity))
+    # return None
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    myWorld.clear()
+    return jsonify(myWorld.world())
+    # return None
 
 if __name__ == "__main__":
     app.run()
