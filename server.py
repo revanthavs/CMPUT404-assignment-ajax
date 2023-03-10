@@ -76,7 +76,11 @@ def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
     # return send_from_directory("static", "index.html")
     # return redirect(url_for('static', filename='index.html'))
-    return redirect("static/index.html")
+    return redirect("/static/index.html")
+
+@app.route("/static/index.html")
+def serve_static_file():
+    return send_from_directory("static", "index.html")
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
